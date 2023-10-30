@@ -1,0 +1,2 @@
+"0","AdData = read.csv(""advertising_TV_Radio_Papers.csv"")"
+"0","head(AdData)"
