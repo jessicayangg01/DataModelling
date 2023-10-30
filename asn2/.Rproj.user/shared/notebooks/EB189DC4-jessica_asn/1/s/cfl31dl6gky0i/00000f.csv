@@ -1,0 +1,1 @@
+"0","plot(MedicalCostData$age, MedicalCostData$charges, xlab = ""Age"", ylab = ""Charges"", main = ""Scatterplot of Charges vs Age"")"

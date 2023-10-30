@@ -1,0 +1,166 @@
+---
+title: "asn_jessica"
+author: "Jessica"
+date: "2023-10-11"
+output: html_document
+---
+
+
+# PART 1 OF ASSIGNMENT 
+
+Import the dataset and store into medicalcostdata
+```{R}
+MedicalCostData = read.csv("MedicalCost.csv")
+```
+
+Display the first few elements
+```{R}
+head(MedicalCostData)
+```
+
+Make a scatterplot of charges against age; do you observe a positive/negative correlation, or no relationship at all?
+
+I observe a positive correlation between age and charges; meaning as age increases, the charges increases too.
+```{R}
+plot(MedicalCostData$age, MedicalCostData$charges, xlab = "Age", ylab = "Charges", main = "Scatterplot of Charges vs Age")
+```
+
+Make a scatterplot of charges against bmi; do you observe a positive/negative correlation, or no relationship at all? 
+
+I do not see a correlation between charges and BMI
+
+```{R}
+plot(MedicalCostData$bmi, MedicalCostData$charges, xlab = "BMI", ylab = "Charges", main = "Scatterplot of Charges vs BMI")
+```
+
+Using the command factor() transform the variable sex into a binary coding (1 for female, 0 for male). Hint: you have levels=c("male", "female")
+
+```{R}
+sex = factor(MedicalCostData$sex, levels = c("male", "female"))
+MedicalCostData$sex = as.numeric(sex) - 1
+head(MedicalCostData)
+```
+
+
+
+Similarly, transform the variable smoker into a binary coding (1 for yes). Hint: you have levels=c("no", "yes")
+```{R}
+smoker = factor(MedicalCostData$smoker, levels = c("no", "yes"))
+MedicalCostData$smoker = as.numeric(smoker) - 1
+head(MedicalCostData)
+```
+
+
+Using one of the methods explained on https://stackoverflow.com/questions/6286313/remove-an-entire-column-from-a-data-frame-in-rLinks to an external site. remove the variable region from the data frame.
+
+```{R}
+MedicalCostData$region <- NULL
+head(MedicalCostData)
+
+```
+
+
+Try obtaining the correlations between all the variables in the dataframe using cor(MedicalCostData[ , ])
+
+```{R}
+correlations <- cor(MedicalCostData)
+print(correlations)
+
+```
+
+What predictors have the largest and the smallest correlations with charges in terms of absolute values? 
+How would you interpret that (intuition only)?
+
+Largest Correlation: "smoker" has the largest absolute correlation with "charges," with a correlation coefficient of approximately 0.787. This means that smoking status is strongly positively correlated with higher insurance charges. The intuition here is that individuals who smoke tend to have significantly higher health insurance charges compared to non-smokers. Smoking is a major factor influencing insurance costs.
+
+Smallest Correlation: "sex" has the smallest absolute correlation with "charges," with a correlation coefficient of approximately 0.057. This suggests that an individual's sex has a weak relationship with insurance charges. In other words, being male or female does not have a strong impact on insurance charges. Gender does not play a significant role in determining insurance costs in this dataset.
+
+
+# PART 2 OF ASSIGNMENT 
+
+15. Run a regression to predict charges using all the available variables as predictors.
+```{R}
+model <- lm(charges ~ ., data = MedicalCostData)
+```
+
+
+
+16. Are there any statistically insignificant predictors in the regression? 
+```{R}
+summary(model)
+```
+
+
+17. Repeat the regression without the insignificant predictor(s).  Now, what predictor has the largest impact on charges?
+
+In the regression output, the "sex" variable is statistically insignificant. You can determine this by looking at the p-value associated with the coefficient for "sex" in the regression summary. The p-value for "sex" is 0.699641, which is much higher than the typical significance level of 0.05. Therefore, you can conclude that the "sex" variable is not a statistically significant predictor of charges in this regression model.
+
+The other variables, including "age," "bmi," "children," and "smoker," have p-values less than 0.05, indicating that they are statistically significant predictors of charges in this model.
+```{R}
+model_no_sex <- lm(charges ~ age + bmi + children + smoker, data = MedicalCostData)
+summary(model_no_sex)
+
+```
+
+
+18. Comment on the R-squared and the adjusted R-squared of the regression model without the insignificant predictor (two sentences).
+In the regression model without the insignificant predictor "sex," the R-squared value is approximately 0.7497, which indicates that the model explains about 74.97% of the variance in the charges. The adjusted R-squared value is approximately 0.7489, and it is very close to the R-squared value, suggesting that the model remains a good fit even after removing the insignificant predictor. 
+
+19. Take a sample size of 80% from the dataset and name it TrainingSet (keep the other 20% of the data under TestingSet).
+
+```{R}
+set.seed(123)  # for reproducibility
+sample_index = sample(seq_len(nrow(MedicalCostData)), size = 0.8 * nrow(MedicalCostData))
+TrainingSet = MedicalCostData[sample_index, ]
+TestingSet = MedicalCostData[-sample_index, ]
+```
+
+20. Re-run the regression model (without the insignificant predictor) on the training set (i.e., train your model).
+```{R}
+model_no_sex_train <- lm(charges ~ age + bmi + children + smoker, data = TrainingSet)
+summary(model_no_sex_train)
+
+```
+
+21. Using the trained model, make predictions for the testing set. 
+```{R}
+predictions_test = predict(model_no_sex_train, newdata = TestingSet)
+```
+
+22. Calculate the Root Mean Squared Error (RMSE). Do you think it's high or low?
+```{R}
+rmse <- sqrt(mean((TestingSet$charges - predictions_test)^2))
+cat("The RMSE is: ", rmse)
+
+charge_range <- range(MedicalCostData$charges)
+cat("Range of charges: ", charge_range[1], " to ", charge_range[2])
+
+```
+the RMSE of 5783.394 is a significant portion of the range of charges. When the RMSE is a large fraction of the range of the target variable, it typically indicates that the model's predictions have a substantial level of error compared to the variability in the actual data.
+
+
+23. Find the definition of Mean Absolute Percentage Error (MAPE) from web and include it in your submission.
+
+The Mean Absolute Percentage Error (MAPE) is a commonly used metric for measuring the accuracy of a predictive model, particularly in forecasting and time series analysis. MAPE quantifies the percentage difference between predicted and actual values, making it easy to interpret in terms of relative accuracy. 
+
+24. Calculate the MAPE (using a package or a function you define yourself). What is the main advantage of MAPE over RMSE?
+```{R}
+mape <- function(actual, predicted) {
+  if (length(actual) != length(predicted)) {
+    stop("Lengths of actual and predicted vectors must be the same.")
+  }
+  
+  N <- length(actual)
+  mape_value <- sum(abs((predicted - actual) / actual)) / N * 100
+  return(mape_value)
+}
+
+
+actual_values <- TestingSet$charges
+predicted_values <- predictions_test
+mape_score <- mape(actual_values, predicted_values)
+cat("MAPE:", mape_score, "%")
+
+```
+The primary advantage of Mean Absolute Percentage Error (MAPE) over Root Mean Squared Error (RMSE) is its percentage-based nature, making it easily interpretable and suitable for comparing models with different scales. 
+(For example, let's say you're comparing the prediction accuracy of two different models A and B, for of Product X and Product Y, respectively. Product X is an expensive luxury item with prices ranging from 1,000 to 10,000 dollars, while Product Y is an everyday household item with prices ranging from 10 to 100 dollars.)

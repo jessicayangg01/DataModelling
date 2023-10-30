@@ -1,0 +1,71 @@
+---
+  title: "Intro Data Science Asn 1: Jessica Yang"
+  output: html_notebook
+---
+  
+Create a R notebook and do the following:
+
+#### Provide links for two online resources where you can get help for R (put the links in the R notebook that you will submit)
+https://www.r-project.org/help.html
+
+http://statseducation.com/Introduction-to-R/modules/getting%20started/help/
+
+#### Search online what the following functions do in R: runif, mean, sd
+runif : generates n uniform random numbers between 0 and 1. runif(n, a, b) generates n uniform random numbers between a and b .
+mean : a vector is calculated using the mean() function. The function accepts a vector as input, and returns the average as a numeric.
+sd : find the standard deviation of the values
+
+
+#### Generate a vector called “mynums” of 10 random numbers from a uniform distribution between 0 and 100
+
+```{r}
+mynums <- runif(10, min = 0, max = 100)
+print(mynums)
+
+```
+
+#### Display the mean of the generated numbers
+```{r}
+mean_value <- mean(mynums)
+cat("Mean:", mean_value, "\n")
+```
+
+
+#### Display the standard deviation of the generated numbers
+```{r}
+sd_value <- sd(mynums)
+cat("Standard Deviation:", sd_value, "\n")
+
+```
+
+
+#### Using “If” statement in R, generate a vector of TRUE and FLASE where TRUE corresponds to a value in “mynums” that is within 2 standard deviations from the mean (FALSE corresponds to a value that is not within 2 standard deviations).
+```{r}
+within_2_sd <- ifelse((mean_value-2*sd_value<= mynums) & (mynums <= mean_value+2*sd_value), TRUE, FALSE)
+
+print(within_2_sd)
+```
+
+
+#### Import the Ads dataset.
+```{r}
+MyAdsData = read.csv("ads.csv")
+```
+
+#### Make two separate pie-charts for two of the variables.
+chart one: gender distribution 
+```{r}
+One_count <- sum(MyAdsData$Gender == 1)
+Zero_count <- sum(MyAdsData$Gender == 0)
+gender_counts <- c("0" = Zero_count, "1" = One_count)
+pie(gender_counts, labels = names(gender_counts), main = "Gender Distribution")
+```
+chart two: 
+```{r}
+myTable = table(MyAdsData$Impressions)
+pie(myTable, labels = names(myTable), main = "Impressions")
+```
+
+#### Save the file as “rmd” and “html”
+
+#### Put both files in a zip file and submit the zip file on learn.

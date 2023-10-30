@@ -1,0 +1,1 @@
+"0","plot(AdData$radio, AdData$sales, pch = 20, col = ""red"")"

@@ -1,0 +1,3 @@
+"0","sex = factor(MedicalCostData$sex, levels = c(""male"", ""female""))"
+"0","MedicalCostData$sex = as.numeric(sex) - 1"
+"0","head(MedicalCostData)"

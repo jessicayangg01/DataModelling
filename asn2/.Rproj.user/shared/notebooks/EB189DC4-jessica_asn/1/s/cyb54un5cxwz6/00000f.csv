@@ -1,0 +1,6 @@
+"0","rmse <- sqrt(mean((TestingSet$charges - predictions_test)^2))"
+"0","rmse"
+"1","[1]"
+"1"," 5783.394"
+"1","
+"

@@ -1,0 +1,3 @@
+"0","smoker = factor(MedicalCostData$smoker, levels = c(""no"", ""yes""))"
+"0","MedicalCostData$smoker = as.numeric(smoker) - 1"
+"0","head(MedicalCostData)"
