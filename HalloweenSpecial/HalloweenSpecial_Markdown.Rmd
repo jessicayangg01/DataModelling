@@ -1,0 +1,141 @@
+---
+title: "Halloween Special"
+author: "Jessica"
+date: "2023-10-25"
+output: html_document
+---
+#### 1. Read the data that is in pumpkins_all_prices.csv and store it in pumpkinsData
+
+```{R}
+# Read the data from pumpkins_all_prices.csv
+pumpkinsData <- read.csv("pumpkins_all_prices.csv")
+
+# Check the first few rows of the data
+head(pumpkinsData)
+```
+
+#### 2. Pumpkins are orange. Is that true?
+Not all pumpkins are orange.
+
+#### 3. How many pumpkins do we have from each color?
+```{R}
+table(pumpkinsData$Color)
+```
+
+
+#### 4. Create a training and a testing set.
+```{R}
+set.seed(123)
+sample_index <- sample(1:nrow(pumpkinsData), 0.8 * nrow(pumpkinsData))
+train_data <- pumpkinsData[sample_index, ]
+test_data <- pumpkinsData[-sample_index, ]
+```
+
+
+#### 5. Train a decision tree model to predict the price of pumpkins.
+```{R}
+library(rpart)
+model <- rpart(Price ~ ., data = train_data)
+
+```
+
+#### 6. Evaluate the decision tree model
+```{R}
+# Make predictions on the test set
+predictions <- predict(model, test_data)
+
+# Calculate Mean Absolute Error (MAE)
+mae <- mean(abs(predictions - test_data$Price))
+
+# Calculate Mean Squared Error (MSE)
+mse <- mean((predictions - test_data$Price)^2)
+
+# Calculate R-squared
+rsquared <- 1 - (sum((test_data$Price - predictions)^2) / sum((test_data$Price - mean(test_data$Price))^2))
+
+# Display the evaluation metrics
+cat("MAE:", mae, "\n")
+cat("MSE:", mse, "\n")
+cat("R-squared:", rsquared, "\n")
+```
+
+#### 7. To create dummy variables in R, install “dummy” library and load it.
+Now, we will develop a regression model. Note that all the variables in the data set are categorical variables. For that we need to modify the data by including dummy variables.
+```{R}
+#install.packages("dummy")
+library(dummy)
+```
+#### 8. Read the data that is in pumpkins_all_prices.csv and store it again in pumpkinsData. We are re-reading the data to make sure we use the original data just in case we modified the data by mistake while completing the above.
+
+```{R}
+# Create dummy variables for the "Package" variable
+pumpkinsData <- read.csv("pumpkins_all_prices.csv")
+
+```
+
+#### 9. We will create a regression model using the “Package” variable only. Do not attempt to include the other variables. For that we need to create dummy variables that correspond to the Package variable. To do that, Run the code below.
+```{R}
+data_temp <- data.frame(pumpkinsData$Package)
+pumpkinsData <- cbind(pumpkinsData, dummy(data_temp))
+
+```
+#### 10. Display the first few rows of pumpkinsData. Describe what changed compared to the original data.
+```{R}
+head(pumpkinsData)
+```
+You will see that new columns have been added for each unique "Package" value with binary values (0 or 1) to indicate which package is present for each row.
+
+#### 11. Create training and testing sets
+```{R}
+set.seed(123)
+sample_index_reg <- sample(1:nrow(pumpkinsData), 0.8 * nrow(pumpkinsData))
+train_data_reg <- pumpkinsData[sample_index_reg, ]
+test_data_reg <- pumpkinsData[-sample_index_reg, ]
+```
+
+#### 12. Create a regression model that only uses the dummy variables that represent the “Package” variables.
+```{R}
+model_reg_new <- lm(Price ~ ., data = train_data_reg)
+```
+
+#### 13. Which model peforms better, regression or decision tree?
+```{R}
+# Make predictions on the test set
+predictions2 <- predict(model_reg_new, test_data_reg)
+
+# Calculate Mean Absolute Error (MAE)
+mae2 <- mean(abs(predictions2 - test_data_reg$Price))
+
+# Calculate Mean Squared Error (MSE)
+mse2 <- mean((predictions2 - test_data_reg$Price)^2)
+
+# Calculate R-squared
+rsquared2 <- 1 - (sum((test_data_reg$Price - predictions2)^2) / sum((test_data_reg$Price - mean(test_data_reg$Price))^2))
+
+# Display the evaluation metrics
+cat("MAE:", mae2, "\n")
+cat("MSE:", mse2, "\n")
+cat("R-squared:", rsquared2, "\n")
+```
+The Decision Tree Model has a lower MAE (18.54489) compared to the Regression Model (21.42888). A lower MAE indicates that, on average, the Decision Tree Model's predictions are closer to the actual values, making it more accurate in this regard.
+
+The Decision Tree Model also has a lower MSE (760.9643) compared to the Regression Model (820.6583). Again, a lower MSE indicates that the Decision Tree Model better reduces the impact of large errors in its predictions.
+
+The R-squared (R²) value for the Decision Tree Model (0.8967645) is slightly higher than that of the Regression Model (0.8886662). A higher R² suggests that the Decision Tree Model explains a bit more of the variance in the pumpkin prices.
+
+Based on these performance metrics, the Decision Tree Model performs better than the Regression Model. It provides more accurate predictions with lower MAE and MSE and explains slightly more of the variance in the data with a higher R-squared. Therefore, in this comparison, the Decision Tree Model is the preferred choice.
+
+#### 14. Use the decision tree model to predict the prices of the pumpkins that are in pumpkins_topredict.csv
+```{R}
+new_data <- read.csv("pumpkins_topredict.csv")
+predictions_new <- predict(model, new_data)
+```
+
+#### 15. Display the predicted prices for the first 3 pumpkins
+```{R}
+head(predictions_new, 3)
+
+```
+
+#### 16. What do you think about creating a regression vs a decision tree model?
+The choice between a regression model and a decision tree model depends on the nature of your data and the problem you're trying to solve. Decision trees are interpretable and can handle complex interactions in the data, while regression models are useful for modeling linear relationships. The better model depends on your specific objectives and the quality of the features and data you have.
